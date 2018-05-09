@@ -1,0 +1,298 @@
+﻿****************实例方法***************
+class Dog():
+	def eat(self,foodName):print("eating",foodName)
+
+dog = Dog()
+dog.eat('rice')  #eating rice
+
+Dog.eat(dog,'rice') #eating rice
+
+*************构造方法**************
+def __init__(self):声明，__init__不能改变
+当有多个__init__方法调用时，最后一个方法起作用
+默认返回的是self
+
+*************析构方法*************
+def __del__(self):pass
+构造方法会在对象销毁时被自动调用
+
+*******python 垃圾回收*******
+Python中的垃圾回收是以引用计数为主，分代收集为辅
+在自己测试中，第一个创建对象，新建一个对象 c = class1() ； sys.getrefcount(c) #2
+对象引用加1 (c2=c), sys.getrefcount(c) #3
+del c #不会调用del方法，因此此时引用计数为2，当执行 del c2时，调用对象销毁机制
+
+导致引用计数+1的情况
+对象被创建，例如a=23
+对象被引用，例如b=a
+对象被作为参数，传入到一个函数中，例如func(a)
+对象作为一个元素，存储在容器中，例如list1=[a,a]
+
+导致引用计数-1的情况
+对象的别名被显式销毁，例如del a
+对象的别名被赋予新的对象，例如a=24
+一个对象离开它的作用域，例如f函数执行完毕时，func函数中的局部变量（全局变量不会）
+对象所在的容器被销毁，或从容器中删除对象
+
+垃圾回收模块 import gc
+必须要import gc模块，并且is_enable()=True才会启动自动垃圾回收。
+这个机制的主要作用就是发现并处理不可达的垃圾对象。
+垃圾回收=垃圾检查+垃圾回收
+在Python中，采用分代收集的方法。
+把对象分为三代，一开始，对象在创建的时候，放在一代中，如果在一次一代的垃圾检查中，改对象存活下来，就会被放到二代中，同理在一次二代的垃圾检查中，该对象存活下来，就会被放到三代中。
+
+gc模快有一个自动垃圾回收的阀值，即通过gc.get_threshold函数获取到的长度为3的元组，例如(700,10,10)
+当计数器从(699,3,0)增加到(700,3,0)，gc模块就会执行gc.collect(0),即检查一代对象的垃圾，并重置计数器为(0,4,0)
+当计数器从(699,9,0)增加到(700,9,0)，gc模块就会执行gc.collect(1),即检查一、二代对象的垃圾，并重置计数器为(0,0,1)
+当计数器从(699,9,9)增加到(700,9,9)，gc模块就会执行gc.collect(2),即检查一、二、三代对象的垃圾，并重置计数器为(0,0,0)
+
+************类的属性*************
+类的__slots__属性
+作用:
+1.限定一个类创建的实例只能有固定的实例属性，不允许对象添加列表以外的实例属性
+2.防止用户因错写属性名称而发生程序错误
+
+说明:__slots__属性是一个列表，列表的值是字符串，
+含有__slots__属性的类所创建的实例对象没有__dict__属性，即此实例不用字典来存储属性
+def class1():
+	__slots__=["name","age"] #指定该类只能有两个属性
+
+c = class1()
+c.address="chengdu" #error occured
+
+
+
+**************对象属性管理*******************
+函数getattr(obj,name [,default])
+从一个对象得到对象的属性,getattr(x,'y')等同于x.y
+当属性存在时给出default参数，如果没有给出default参数，则产生一个AtrributError 错误
+
+hasattr(obj,name) 用给定的name返回对象obj是否有属性
+setattr(obj,name,value)
+delattr(obj,name) 删除对象obj 的name属性
+
+例如:
+class myClass:
+ 	name="acb"
+m= myClass()
+hasattr(m,"name")
+
+
+****************类方法*****************
+在方法前面约束@classmethod，可以使用类名直接调用方法
+类方法只能访问变量的方法
+类方法需要使用@classmethod装饰器定义
+类方法的第一个参数是类的实例，约定写为cls
+
+说明：
+类实例和对象实例都可以调用类方法
+类方法不能访问实例变量
+
+class ICBC:
+	moneys=10000
+	@classmethod
+	def total_money(cls):pass
+
+ICBC.total_money()
+i=ICBC()
+i.total_money()
+
+类方法和实例方法对比
+1.类方法能够访问类变量，不能访问实例变量
+2.类方法可以用实例来调用，也可以用类来调用，实例方法在调用时必须传入实例
+
+静态方法 @staticmethod
+静态方法是普通的函数，不需要传入self实例参数和cls类参数
+静态方法只能使用类和实例调用
+
+
+***************特性属性**************
+通过@property装饰器对属性赋值和取值，实现其他语言所拥有的getter 和setter功能
+
+例如:
+class Circle:
+	@property
+	def area(self):return math.pi *self.radius **2
+	@area.setter
+	def area(self,a):print(a)
+
+c = Circle()
+print(c.area) #call getter method
+c.area= 3.1546 #call setter method
+
+*************id函数**************
+id(obj) 返回对象的唯一标识(identity)
+c = A()
+id(c)
+
+对象转字符串函数重载
+repr(obj)
+str(obj)
+
+repr()函数的重载方法
+ __repr__(self):return 'overite repr'
+
+str()函数的重载方法:
+__str__(self):pass
+如果对象没有__str__方法，则用repr(obj)函数的结果代替
+
+算数运算符重载
++	__add__
+-	__sub__
+*	__mul__
+/	__truediv__
+//	__floordiv__
+%	__mod__
+**	__power__
+
+二元运算符重载格式:
+def __XXX__(self,other):
+注，二元运算符的重载方法的参数列表只能有两个参数
+
+重载说明:
+运算符重载方法的参数已经有固定的含义，不可改变原有的意义，除__call__方法外，其他重载方法的参数个数不可改变
+
+
+**********函数调用模拟重载**************
+__call__方法
+作用：让一个对象能想函数一样被调用
+方法格式：
+def __call__(self,参数列表):pass
+
+注：此重载方法的参数可以是0,1个或者多个
+
+class A:
+ def __call__(self,name):pass
+
+a=A()
+a('abc')
+
+********继承(inheritance)和派生(derived)**********
+继承的目的是延续已有的功能
+派生的目的是在已有的基础上添加新的功能
+名词: 
+基类(base class),超类(super class),父类(father class)
+派生类(derived class),子类(child class)
+
+__base__属性用来记录类的基类(类实例)
+class Person:pass
+print(person.__base__) #Object class
+
+object 类的父类是None
+
+*******重写(override)********
+
+对父类的方法进行重写,实际上调用子类的重写方法
+
+self.__class__.__base__.study(self,lesionName)#子类方法中调用父类方法
+Person.study(self,lesionName)#子类方法中调用父类方法
+
+super函数
+super(type,obj)返回绑定超类的实例(要求obj必须为type类型的实例)
+super()返回绑定的超类的实例
+
+super(Student,s).study("AI")
+或者
+s = super()
+s.study("AI")
+或者
+super(Student,self).study(lesionName)
+
+
+用于类的函数：
+issubclass(cls,class或类元组): 判断一个类是否是继承自其它的类，
+	如果此类cls是class或元组中的一个派生子类，则返回True,否则返回false
+class A:pass
+class B(A):pass
+class C(B):pass
+
+issubclass(C,A)
+
+
+help(__builtins__)查看所有内建类的帮助
+
+子类构造器重载:
+class Student(Person):
+    def __init__(self,name,age):
+        super(Student,self).__init__(name,age)
+	#或者super().__init__(name,age)
+
+    def study(self,lesionName):
+        print(self.Name," is studying ",lesionName,"age:",self.age) #可以直接访问父类的属性
+
+
+
+多肽
+class Shape:
+    def draw(self):
+        self.drawSelf()
+
+class Point(Shape):
+    def drawSelf(self):
+        print("draw point")
+
+shape = Point()
+shape.draw()
+
+
+封装 enclosure
+python的封装是假的(模拟的)封装
+
+私有的实例变量和方法
+python类中，以双下划线__开头，不以双下划线结尾的标识符为私有成员(私有属性和方法)
+
+
+多继承
+class C(A,B):pass
+
+多继承的问题
+1.标识符冲突的问题
+
+
+python编码规范
+
+PEP8 编码标准
+代码编写
+1.使用4个空格进行缩进，不使用Tab,更不允许使用Tab和空格混用
+2.每行最大长度79字节，超过79字节使用反斜杠换行
+3.类和全局函数定义间隔两个空行，类内方法定义间隔一个空行，其他地方不加空行
+
+文档编写：
+1.import部分按标准，三方和自己编写的顺序依次排放，之间空一行
+2.不要在一个import中导入多个模块，如：import os,sys,time, 应写成多行
+3.尽可能用import XX 需不用from xx import YY引用库，因为可能出现名字冲突
+
+
+空格的使用：
+1.各种右括号前不用加空格
+L=[1,2,3 ] #]前不用加空格
+2.逗号，冒号，分号前不要加空格
+3.函数左括号前不要加空格
+4.操作符左右各自加一个空格，不要为了对齐增加空格, print(1 + 2 + 3)
+5.函数的默认参数使用的赋值符左右省略空格 def myfun(a=100,b=200):pass
+6.不要将多句语句卸载同一行，尽量不要加分号
+7. if/for/while语句中，及时执行语句只有一句，也必须另起一行
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,10 @@
+﻿常用应用程序协议端口
+http:80
+https:443
+SMTP: 25
+POP3:110
+Telnet:23
+
+套接字(socket)
+from socket import *
+udpsocket=socket(AF_INET,SOCK_DGRAM)

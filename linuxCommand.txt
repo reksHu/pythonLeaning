@@ -1,0 +1,249 @@
+﻿www.it211.com.cn
+1.mkdir -p
+
+2.rmdir -p a/ab/abc/abcd , if some file in one of folder,
+the folder will not be deleted.
+
+3touch
+
+  if the file is not existed, will create a empty file.
+  if the file is existed, will update the file modify date.
+4touch file1 file2
+
+5.ls --help
+
+6.man command
+   provide command operation manual text information
+example:man ls
+
+mouse scrol, j(scroll down), k (scroll up), q(quit)
+
+7.history command
+   provide the history command which end user has inputed.
+example: history
+   if you want to execute one of history commands, run !line ID
+
+8. cp command
+
+9. mv command
+
+10. clear command
+    Ctrl+L is also clear the screen command
+
+
+11, vim
+command modal and editable modal
+
+:q -- exit
+:q! -- no save and exit
+:w  save the changes
+:w [file name] -- save to the file (save as)
+:wq  -- save and exit
+:w! -- mandatory saving
+
+12. notepad++
+run the notepad tool:
+notepadqq<Enter>
+notepadqq [file name]<Enter>
+
+13. sublime text editor
+run the sublime tool:
+subl<Enter>
+subl [file name]<Enter>
+
+
+14. check file permission
+ ls -l
+ r -- read permission
+ w -- write permission
+ x -- execute permission
+ - -- no permission
+
+file permission group
+user permission & group permission  and other
+
+the higest permission : rwxrwxrwx
+the lowest permission : ---------
+
+chmod command: update the file permission
+chmod [permission format] [filename]/[folder]
+
+permission format :
+	u (user name/file owner)
+	g (group user)
+	o (other users)
+	a (all users)
+	+ (add user permission)
+	- (remove permission)
+	777 (the highest permission)
+	000 (the lowest permission)
+example:
+chmod o-r a.txt   (remove othsers user read permission)
+chmod 000 a.txt (grant the lowest permission to the file)
+
+
+
+15. file command, used for checking file type
+example: file [file name]
+
+16. diff command, used for comparing file content.
+
+example: diff [file1] [file2]
+this command is not convient.
+
+so it's suggested using meld/beyond compare tool
+
+sudo apt install meld -- install meld
+
+17. find command, used for find some file
+ find [file location] -name "[file name]"
+example: find /home -name "a.txt"
+find . -perm 744    ---- find all files with -rwxr--r-- permission in current folder
+find . -name "*shell*"  ---find all files contains shell 
+find . -name "*.sh"   
+
+if want to find how many files in home path?
+find ~ -name "a.txt"
+find ~ -name "*.txt"
+
+18. grep command, used for find file according to content.
+command format: grep [content] [option] [filename]/path
+option: -n (show row line)
+	-R/ -r (recursive search file)
+
+man grep
+if need to search -R option, input /-R to locate the -R option description.
+
+example: grep "python" *  (* mean search current file/folder )
+grep "python" -n *  (show row line about 'python' content in files)
+
+grep "python" -r -n *
+grep "python" -nR *
+
+execise: find files under /etc location with "python" chractors
+grep "python" -nR /home/hur2/Desktop
+
+
+19. file content check command
+ 1). cat command -- show file content as standard display output(display file content)
+	command format :  cat file1 file2 file3 ...
+	example: cat a.txt
+
+ 2). more command -- display file content for paging 
+using Space key to scroll next page(q- quit),Enter key to next line, but it's not supported for scroll up paging.
+
+format: more file1
+
+ 3). less command -- display file content for paging (can scroll previous page or next page)
+ format: less file1
+operations: 
+	q ---- quit
+	j ---- next page
+	k ---- prevoice page
+	Space ---- next page
+	Enter ---- next line
+
+ 4). pipline command  | 
+example: cat /ect/passwd | grep aaa -n
+cat /ext/passwd | grep aaa | wc -l  (wc -- word char, l -- show line)
+
+20. file redirection
+
+a).standart output
+
+find /usr -name "a.txt" > fileAResult.txt   ---- generate a fileAResult.txt file to keep the find result.
+
+find /usr -name "a.txt" >> fileAResult.txt  ---- append the end of fileAResult.txt file of the find result.
+
+b).standart error output
+   command format: 2>   
+		   2>>
+example : find /sur -name "subl" 2>error.txt
+find /etc -name "passwd" 2> error.txt > result.txt  ----- input the result right information into result.txt file and error into error.txt.
+
+
+c). redirection all output
+   command format: &>
+		   &>>
+redirect all standart and error output into a file
+example: find /etc -name "passwd" &>all.txt
+
+execise:
+	find all files named ls and input the result into result.txt and error for error.txt
+	$ find /usr -name "ls" >result.txt 2>error.txt
+	$ find /usr -name "ls" &>allResult.txt 
+
+/dev/null is a file with no increased no matter how end user inputed.
+cd /
+find . -name "ls" 2> /dev/null  ----- just display the right information without no error.
+
+21. uname command --- check the operation system information
+command format: uname [operations]
+operations: -a ----show all inforamtion
+
+22. date command  --- display date 
+command format : date + %D (MM/dd/YYYY)
+		date + %T (hh:mm:ss)
+
+
+23. gzip command ---compress a file (.gz)
+format: gzip [file name]
+
+
+24. tar command --- package a file or folder
+format: tar [options] [filename] [file path]
+
+options:
+	-c  --- create package
+	-x  --- unpackage/extract file
+	-f  --- file name
+	-v  --- display operation(pacakge) files
+	-z  --- compress or decompress a package using gzip/gunzip
+example: tar -cf folders.tar folder1 folder2 
+	tar -xvf ~/folders.tar
+	tar -czvf folers.tar.gz folder1
+	tar -xzvf folders.tar.gz
+
+25. shutdown command 
+options :
+	-c: cancel the setting of shutdown command
+	-h : shutdown
+	-r: restart/reboot
+shutdown -h now
+shutdown -h 18:30
+
+
+
+26. process command
+ps [options]
+options:
+	-aux ---- display the detail process information of all process.
+
+27. run shell file.
+
+default the myshell.sh has no premission to execute.   ls -l myshell.sh  (-rw-r--r--)
+ 
+bash myshell.sh   ---- open bash process to execute the myshell.sh file
+. myshell.sh	---- execute the myshell.sh file in current terminal process
+./myshell.sh	---- execute the file need premission.   chmod +x myshell.sh to grant permisison
+
+#!/usr/bin/bash   in the sh file first line, it's decleaim that the following command using bash to execute.
+
+whereis bash
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

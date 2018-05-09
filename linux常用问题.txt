@@ -1,0 +1,12 @@
+﻿1.python 查看版本信息
+python -V
+
+2. linux 下打开 anaconda navigator
+在命令行中输入: anaconda-navigator
+
+3.vim 使用
+从编辑模式进入命令模式： ESC键
+http://www.cnblogs.com/bradwarden/diary/2018/01/29/8379462.html
+
+4.改变文件或者文件夹的用户
+sudo chown -R hur2 test  # -R表示递归改变文件夹和文件的所有权， test 为文件夹

@@ -1,0 +1,509 @@
+﻿非关系型数据库：
+键值存储数据库：redis
+文档存储数据库：MongoDB
+类别存储数据库: Cassandra
+图数据库 nforGrid
+
+文档:MongoDB中数据的基本单元，类似于关系型数据库中的行
+文档就是键值对的一个有序集，python里用字典表示，键通常是字符串
+以BSON文档形式存储数据记录，BSON是Json文档的二进制表达形式
+
+MOngoDB不区分类型，但区分大小写
+
+数据类型:
+null: 空值或者不存在的字段
+例： {"x":null}
+
+布尔型:true,false
+例： {"x":true}
+
+数值:shell默认使用64位浮点型数值
+例： {"x":3.14}
+
+字符串:UTF-8字符串都可以表示为字符串类型的数据
+例： {"x":"text"}
+
+日期：被存储为自新纪元以来经过的毫秒数，不存储时区
+例： {"x":new Date()}
+
+数组：即能作为有序对象，也能作为无序对象操作，可包含不同数据类型的元素
+例： {"thing":["pie",3.14]}
+
+内嵌文档:文档可以作为键的值
+
+对象id:是一个12字节的ID，是文档唯一的标识
+例： {"x":ObjectId()}
+
+
+集合:一组文档，类似于关系型数据库中的表
+数据库:多个文档组成的集合，多个集合组成的数据库
+
+集合命名规范:
+不能是空字符串
+不能包含\0字符，这种字符标识集合名结束
+不能以"system."开头，这种系统集合保留的前缀
+不能包含保留字符.和$
+
+数据库命名规范:
+不能是空字符串
+可以是字母数字下划线开头
+区分大小写，通常最好是全部小写
+最多64个字节
+
+
+系统保留数据库
+admin
+   是root数据库
+   用户将获得所有的权限
+
+local
+   永远都不可以复制
+   一台服务器上的所有本地集合都可以存储在这个数据库中
+
+
+MongoDB优势:
+没有模式
+每个单一对象的结构很清晰
+没有复杂的表连接
+深度查询能力
+调整方便
+易于扩展
+不需要转换和映射应用对象到数据库对象
+用内存存储工作集，更快速连接数据
+
+
+何时需要MongoDB
+面向文档的存储(大量文本类型数据)，数据用Json文档存储
+在任意属性上建立索引
+复制和高可利用性
+自动分片
+丰富的查询
+快速原位置更改
+处理大数据，内容管理和传送，移动或者社交设施，用户数据管理，数据中心
+
+
+
+
+控制台输入 mongo  进入mongo命令行
+show dbs #显示所有数据库名字,当数据库中有内容时，自创建的数据库就会显示
+
+use mydb
+显示当前使用的数据库名字
+db
+
+删除数据库
+use mydb
+db.dropDatabase()
+show dbs 
+
+创建集合
+use mydb
+db.createCollection('myCollection')
+show collections
+
+在Mongodb中，不必创建集合，当插入文档时候会自动创建集合，例如:
+db.students.insert({"name":"aaa"})
+show collections
+
+show students
+db.students.drop() #删除该集合
+
+
+练习：
+创建一个表示图书馆的数据库
+创建集合计算机书籍，在该集合中插入一个文档，书名为:python宝典，作者XX
+列出当前使用的数据库，列出数据库中的集合
+删除该集合，最后在删除该数据库
+
+
+{键:值} ->文档->集合->数据库
+**************插入文档*************
+db.students.insert({"name":"adf"})
+同时插入多条:
+db.集合名.insert([{文档1},{文档2}])
+
+
+
+*************查询文档****************
+db.集合名.find()
+pertty()格式化展示结果
+db.集合名.find().pretty()  #findOne没有pretty函数
+
+findOne()查询集合中最后插入的一条文档，自动格式化，没有pretty()函数
+db.集合名.findOne()  
+
+例如:
+db.mycol.find()
+
+
+*********删除文档**************
+remove()将文档从集合中永久删除
+注意：如果没有任何参数，将会把所有的文档删除 #db,coll.remove({}) 删除所有文档
+ddb.collection.remove(
+   <query>,
+   {
+     justOne: <boolean>,
+     writeConcern: <document>
+   }
+)
+query :（可选）删除的文档的条件。
+justOne : （可选）如果设为 true 或 1，则只删除一个文档(从找到的第一个删除),默认为0，删除符合条件的所有记录
+writeConcern :（可选）抛出异常的级别。
+
+db.mycol.remove({'title':'python'})
+
+****************条件语句查询********************
+db.mycol.find({"by":"abc"}).pretty()   #查找相等文档
+操作：等于   格式：{<key>:<value>}	例如：db.col.find({"by":"菜鸟教程"}).pretty()  SQL: where by = '菜鸟教程'
+
+小于	{<key>:{$lt:<value>}}	db.col.find({"likes":{$lt:50}}).pretty()	where likes < 50
+小于或等于	{<key>:{$lte:<value>}}	db.col.find({"likes":{$lte:50}}).pretty()	where likes <= 50
+大于	{<key>:{$gt:<value>}}	db.col.find({"likes":{$gt:50}}).pretty()	where likes > 50
+大于或等于	{<key>:{$gte:<value>}}	db.col.find({"likes":{$gte:50}}).pretty()	where likes >= 50
+不等于	{<key>:{$ne:<value>}}	db.col.find({"likes":{$ne:50}}).pretty()	where likes != 50
+
+
+$and: 根据and条件查找文档
+db.col.find({key1:value1, key2:value2}).pretty()
+或者
+db.col.find(
+	{
+		$and:[
+			{key1:value1},{key2:value2}]
+	}
+)
+
+练习：
+查找price>=70或者likes<=100的书籍文档
+查找price=90或者likes=20或者bookName='AI'的书籍文档
+查找likes>10并且作者为'XXX' 或者bookName='AI'的书籍文档
+
+
+$in 和 $nin
+
+
+************更新文档***************
+update()更改已经存在的文档中的值，接受至少两个参数
+1.查询文档:用于定位需要更新的目标文档
+2.修改器文档:用于说明对匹配文档的修改
+
+db.集合名.update(文档查询，修改器文档)
+更新修改器$set是一种特殊的键，用来指定复杂的更新操作
+$set修改器:指定一个字段的值，如果该字段不存在，则创建
+
+db.user.update({"name":"Joe"},{$set:{"phone":"123456"} })
+
+如果 db.user.update({"name":"Joe"},{"phone":"123456" }) #表示将符合条件的文档被全部替代为 新值
+
+$unset #将指定的键完全删除
+db.user.update({"name":"Joe"},{$unset:{"favorite book":1 } } ) #删除favorite book 键值
+
+
+增加和减少
+$inc: increase用来增加已有的键的值(原键值加上新值)，如果该键不存在的话就创建一个键值。(只能用于数值类型)
+db.user.update({"name":"Joe"},{$inc:{"score":20}}) #如果原来score=10,运行update后变为30 (10+20)
+
+追加数组元素:$push
+如果数值已经存在，会在已有的数值末尾追加入一个元素，如果数组不存在，则创建一个新数组
+db.books.update({"name":"mysql"},{$push:{"tags":"mysql"} })
+
+减少数组元素:$pop
+从数组中如何一端减少元素
+{$pop:{"key":1}} 表示从数组末尾弹出一个元素
+{$pop:{"key":-1}} 表示从数组头部弹出一个元素
+db.books.update({},{$pop:{"tags":1} })
+
+$pull:基于特定条件来删除数组元素，不仅仅是依据元素位置
+db.lists.update({"name":"Joe"},{$pull:{"todo":"clearning"} }) #表示从todo数组中删除'clearning'元素
+
+
+
+save() 方法通过传入的文档来替换已有文档,必须传入 ObjectId
+db.coll.save({"_id":ObjectId("GUID),[需要替换的键值]"})
+db.col.save({
+    "_id" : ObjectId("56064f89ade2f21f36b03136"),
+    "title" : "MongoDB",
+    "description" : "MongoDB 是一个 Nosql 数据库",
+    "by" : "Runoob",
+    "url" : "http://www.runoob.com",
+    "tags" : [
+            "mongodb",
+            "NoSQL"
+    ],
+    "likes" : 110
+})
+
+指定文档id
+db.coll.insert({"_id":1,"name":"asdf"})
+
+投影操作
+选择文档中有用的数据，而不是所有的数据
+find():限制所有选择的键，1表示显示该键，0表示隐藏该键
+db.coll.find({},{"_id":0}) #表示隐藏打印出来所有的id 键值
+
+limit(): 接受一个数字参数，展示前多少个文档
+
+db.coll.find().limit(数字)
+db.post.find({}).limit(2)
+
+skip():跳过几个文档
+db.coll.find().skip(数字).limit(数字) #通常limit()放在最后,因为limit()最后才执行
+
+sort():文档排序
+1:升序， -1:降序
+db.coll.find().sort({"key":-1}) #对key按照降序排列输出
+db.coll.find({},{"_id":0}).sort({"price":-1,"likes":1}) #price按照降序排序，likes按照升序排列
+
+
+查询数组$all
+作用通过多个元素来匹配数组
+
+db.food.insert({"fruit":["apple","banana","peach"]})
+db.food.insert({"fruit":["apple","orange","peach"]})
+db.food.insert({"fruit":["cherry","banana"]})
+db.food.insert({"fruit":["apple","banana"]})
+找出文档中即包括apple,又包括banana的文档
+db.food.find({"fruit":{$all:["apple","banana"] }})
+
+$size 查询特定长度的数组
+db.food.find({"fruit":{$size:3} })
+
+练习:查询food集合中，长度为3，并且即包含苹果又包含香蕉的文档
+1.db.foods.find({"fruit":{$size:3,$all:["apple","banana"] } })
+
+2.db.foods.find({$and:[ {"fruit":{$siez:3}},{"fruit":{$all:["apple","banana"]} } ] })
+
+
+数组切片 $slice
+作用：返回某个匹配键的数组元素的子集
+{$slice:10} 返回前10条文档
+{$slice:-10} 返回最后10条文档
+{$slice:[23,10]} 返回第24条文档至第33(23+10)条文档记录
+
+db.books.find({"title":"newwork overview"},{"commnets":{$slice:[0,2]}}).pretty()
+
+
+
+
+*************文本搜索*******************
+包含任何含有字符串或者字符串数组的元素
+集合中必须首先创建文本索引，一条集合只能有一条文本搜索索引，但索引可以覆盖多个字段。
+
+创建文本索引，找出含有咖啡店信息的文本:
+
+db.store.createIndex({"name":"text","des":"text"})
+
+$text 完成文本搜索,它把查询字符串用空格或分隔符分段，各个词之间用逻辑or连接
+db.stores.find({$text:{$search:"java coffe shop"} })  #可以搜索出大写，大小写不敏感
+db.store.find({"name","Java shopping"}) #区分大小写
+
+
+文字排除
+用 '-'符号表示不包含
+例如:查找包含java或者shop，但是不包含coffee
+db.stores.find({$text:{$search:"java -coffe shop"} })
+
+精确匹配文字
+用双引号扩起来的字段为精确匹配
+如:找出含有java或者coffee shop的文档
+db.stores.find({$test:{$search:"java \"coofee shop\""} }) # \"为转义字符
+
+对文字匹配排序
+mongodb默认无序，可以使用文档匹配查询信息的分数来排序
+但是必须显示指定{$meta:"textScore"},这是mongodb默认的属性，然后排序
+例如: db.stores.find(
+	{$text:{$search:"java coffee shop"}},
+	{$score:{$meta:"textScore"} }
+).sort({$score:{$meta:"textScore"}})
+
+练习:
+查找food集合中，fruit列表包含apple,但不包含banana的文档
+
+
+**********查询内嵌文档*******************
+{"name":"yang","age":30,
+   "address":{ #这为内嵌文档
+		"city":"beijing","district":"caoyang" 
+	}
+}
+1.使用点表示法查询
+db.books.find({"comments.name":"yang"}) # "comments.name"的引号必须保留
+2.$elemMatch (element match)
+
+db.books.find({"comments":{$elemMatch:{"name":"yang"} } })
+
+查找comments为yang的人,并且评价为good
+db.books.find({"comments":{$elemMatch:{"name":"yang","comment":"good" } }}) #只能用此种方法
+db.books.find({"comments.name":"yang","comments.comment":"good"}) #此种方法不正确，如果其他人的comment有good,也会一并搜出来
+
+
+*******************修改内嵌文档**********************
+1.基于位置的数组修改器：如果数组有多个值，而只对其中一部分进行操作，有两种方法:
+a.通过位置：数组下标是以0开头的，可以将下标直接作为键来选择元组
+db.books.update({"title":"network overvie"},{$set:{"comments.1.comment":"good"} })
+
+练习:把books中，likes>80的书，对应的comments的yang的评价从great改为good(第0个位置元素)
+db.books.update({"likes":{$gt:80} },{$set:{"comments.0.comment"："good"} })
+
+
+
+b.定位操作符$，统一修改
+update()函数中的一个参数 multi:true, default为false
+
+db.books.update({"comments.name":"yang"},{$set:{"comments.$.comment":"ok"} },{multi:true} ) #将所有yang下面的comment修改为good
+
+练习:
+1.往books集合中插入一条新书信息:
+{"title":"python", "by":"tutorials point","tags":["python","it","programming","animal"],
+"likes":80, "comments":{"min":"good","wei":"bad"}
+}
+把python的书，对应的tags中的animal去掉($pull)
+db.books.update({"title":"python"},{$pull:{"tags":"animal"} })
+
+把books集合中，按照likes从高到低排序，并且跳过第一个文档，只显示后两个的信息(sort(),skip(),limit())
+db.books.find().sort({"likes":-1}).skip(1).limit(2)
+
+列出tags中即包括it, 又包含python的书($all),并且tags中包含3个元素的书,只列出书名和tags两个属性，隐藏其他属性
+db.books.find({"tags":{$size:3,$all:["python","it"] } })
+
+查找tags和title和by属性中，包含如下任意字段的文档信息:python, point,最后按照匹配度的得分排列出来
+把wei的人的书评全部改为not bad
+
+
+
+************聚合管道***************
+管道操作符:
+sql与mongodb对比
+
+ SQL		 MongoDb
+select		$project
+where		$match
+limit		$limit
+group by 	$group
+order by	$sort
+sum		$sum
+join		$lookup
+
+
+db.orders.insert([
+	{"cust_id":"A123",amount:500,"status":"A"},
+	{"cust_id":"A123",amount:200,"status":"A"},
+	{"cust_id":"B223",amount:150,"status":"C"},
+	{"cust_id":"A123",amount:300,"status":"B"}
+
+])
+
+
+
+db.orders.aggregate({$match:{status:'A'}})
+
+#求amount之和并按照id分组，将结果打印出来
+db.orders.aggregate({$group:{"_id":"$cust_id",total:{$sum:"$amount"} } })
+#对status进行分组，把status和对应的amount的平均值打印出来
+#每一条aggregate都需要有一个属性_id.
+db.order.aggregate({$group:{"_id":"$status","average":{$avg:"$amount" } } })
+
+
+$lookup 相当于sql 中的join连接
+例如:
+db.contry.insert([
+	{"_id":1,name:"india"},
+	{"_id":2,name:"US"}
+	{"_id":3,name:"UK"}
+	{"_id":4,name:"China"}
+])
+
+db.city.insert([
+	{"_id":1,name:"Delhi",contryId:1}.
+	{"_id":2,name:"Beijing",contryId:4},
+	{"_id":3,name:"NewYork",contryId:2},
+	{"_id":4,name:"LA",contryId:2},
+	{"_id":1,name:"London",contryId:3}
+	{"_id":1,name:"Shangehai",contryId:4}
+	{"_id":1,name:"Bristol",contryId:3}
+	{"_id":1,name:"HOngzhou",contryId:4}
+])
+
+db.city.aggregate([
+	{
+	$lookup:{ from:"contry",localField:"contryId",foreignField:"_id","as":"Contry"}
+}
+
+])
+
+
+
+map-reduce函数
+1.表达任意复杂的逻辑，但是非常慢，不应该用在实时的数据分析中
+2.能够在多肽服务器之间并行执行，将一个大问题拆分成多个小问题，
+将小问题发送到不同的服务器上，每台机器只能完成一部分工作，所有机器都完成时，
+再将这些零碎的解决方案合并为一个完整的解决方案
+
+3.步骤
+映射map：将操作映射到集合中的每一个文档，通常存放一些列的键和值。
+洗牌shuffle:按照键分组，并将产生的键值组成列表放到对应的键中
+化简reduce:把列表中的值化简为一个单值，这个值被放回，然后接着洗牌，直到
+每个键的列表只有一个值为止，这个值就是最终结果。
+
+db.orders.mapReduce(
+	function(){emit(this.cust_id,this.amount); },
+	function(key,values){return Array.sum(values)},
+	{
+		query:{"status":"A"},
+		out:"order_totals"
+	}
+) 
+
+第一步:query,
+第二步: map也就是emit函数,emit(cust_id,amount)将值分别映射到function(key,values)
+第三步:reduce,即function(key,values)函数， key, values为 cust_id,amount的形式参数
+
+
+
+db.results.count()
+db.results.distinct('Marks')
+
+*****************用pymongo操作mongo db**********************
+import pymongo
+连接到mongodb客户端
+连接到默认主机和默认端口
+from pymongo import MongoClient
+client = MongoClient()
+
+也可以指定主机和端口号
+cient = MongoClient('localhost',27017)
+
+db = client.test_db  #连接一个数据库，如果没有则创建
+或者
+db = client["test_db"]
+
+连接到集合
+collections = db.test_collection #连接到test_collection集合
+或则
+collections = db["test_collection"]
+
+文档:
+MOngoDb中数据是json风格的文档，在pyMOngo中，用字典表示文档
+post = {...}
+db.posts.insert_one(post)
+
+
+
+
+
+
+
+python中的re 模块
+常用的正则表达式
+| 用于分割不同的regex，表示或的关系
+. 匹配除了换行符\n以外的任何字符
+^ 从字符串起始边界开始匹配
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,383 @@
+﻿numpy/scipy/matplotlib/sklearn/tensorflow/...
+第一阶段:数据分析
+第二阶段:机器学习-->深度学习-->强化学习(机器自我学习)
+
+1.numpy = Numerical Python,用C编写
+2.numpy是一整套开元的科学计算库。
+3.numpy弥补了作为通用编程语言的python在数值计算方面能力弱，速度慢的不足
+4.numpy荣有丰富的数据函数，强大的多维数组和优异的运算能力
+5.numpy与scipy,scikits,matplotlitb等其他科学计算库，可以很好的协调工作
+6.numpy可以取代matlab和mathematical的功能，并允许用户进行快速交互原型开发
+
+numpy的历史背景
+1995年, numeric早期的python语言数值计算库，现在已废弃
+2001年, scipy项目启动，所需要的新特性被实现于numarray中
+2005年，重构numeric,意图将numarray中的新特性整合到numeric中
+2006年，numpy独立于scipy正式发布，第一个版本发布。同时荣有numeric和numarray的全部特性
+
+
+为什么使用numpy?
+同样的计算任务使用numpy比使用纯Python代码少的多
+存储效率和I/O性能要远胜于python
+numpy的底层实现使用C语言甚至汇编语言，运行速度可以达到极限
+numpy是完全开源，成本低没有法律风险
+
+
+numpy的局限性
+1.内置数据结构的通用性不及python，在科学计算以外的领域，numpy的优势并不明显
+2.numpy的模块是用C语言编写的，不支持jython.
+
+numpy的安装
+在线安装 pip install numpy --安装的是纯numpy
+
+离线安装: numpy+mkl(Inter(R) math kernel libarary:数学核心库) numpy-1.13.3+mkl
+pip install numpy-1.13.3+mkl
+
+scipy-0.19.1
+matplotlib-2.02
+
+
+numpy的核心---多维数组
+代码:vector_sum.py
+
+numpy基础
+
+1.数组对象：
+1)numpy的数组对象是numpy.ndarray(n维数组)类型的对象，其中包括实际的数据，以及描述这些数据的元数据,大部分针对数组的操作实际上仅仅
+是针对其元数组的操作，依次提升性能
+2)numpy数组的元素必须是同质(类型完全一致)
+3)numpy数组的下标从0开始，最后一个元素的下标是 数组长度-1
+4)numpy数组对象的dtype属性，用来表示元素的数据类型
+5)numpy数组的shape属性表示数组的维度，通过一个元组(tuple)表现，其中的每一个元素即相应的维度大小.
+
+numpy.arange(起始值,终止值,步长)： 获得一个数组类型的序列 [10 12 14 16 18 20 22 24 26 28] 不是列表[1,2,3..]
+numpy.array([元素1,元素2,...])
+numpy.array([ [1,2,3],[4,5,6] ])
+two_dim = np.array([ [1,2,3],[4,5,6],[7,8,9],[10,11,12] ],float)
+three_dim = np.arange(1,25).reshape(2,3,4).astype(float)
+
+
+2.下标访问
+
+three_dim[0][1][1] 等价于 three_dim[0,1,1]
+
+3.数据类型
+python 数据类型有:
+bool,int,float,complex,tuple,str,list,set,dict
+
+numpy的内置类型
+bool_ , int8/int16/int32/int64 (int 16 : -32768 -- 32767)
+uint8/uint16/uint32/uint64(不带符号的整数,都为正数)  uint64: 0--65535
+
+float16/float32/float64
+complext64/complex128(实步和虚部数字长度应该一致)
+str_
+
+np.typeDict #查看numy类型字典
+
+自定义类型:
+t = numpy.dtype(T)
+a=numpy.array([...],dtype=t)
+
+使用类型
+t=numpy.dtype(int) #使用python int 类型定义类型
+t=numpy.dtype(numpy.int32) #使用numpy int32类型定义
+
+t=numpy.dtype('int')
+t=numpy.dtype('int32')
+例如：
+t = np.dtype(np.int16)
+three_dim = np.arange(1,25).reshape(2,3,4).astype(t)
+
+**********自定义类型**************
+1.类型字符编码
+t=numpy.dtype(">(2,3)4i4") 
+# >:代表大段字节序， (2,3):维度，两行三列， 4:分量数， i：每个分量的类型，整形， 4:分量字节数
+b = np.arrange(1,49).astype('>(2,3)4i4')
+b = np.arrange(3).astype('3f4')  #创建一个三行三列方阵，元素为浮点数4个字节
+b=np.array([
+( ( (1,2,3,4),(5,6,7,8),(9,10,11,12) ),
+  ( (13,14,15,16),(17,18,19,20),(21,22,23,24)  )
+ ),
+( ( (25,26,27,28),(29,30,31,32),(33,34,35,36) ),
+  (37,38,39,40),(41,42,43,44),(45,46,47,48)
+ )
+],dtype='>(2,3)4i4')  #shape = (2, 2, 3, 4)
+等价于dtype=">(2,3,4)i4"  #有两个元素，每个元素两行三列
+
+2.T(变长类型，长度)
+t.numpy.dtype((numpy.str_,14)) #使用numpy的字符串格式,最大长度14，(为unicode字符编码，每一个占4个字节)
+
+np.array(['hello world','hello python' ]) #dtype ='<U12',默认为小段字符，unicode编码，12字符长
+
+
+3. T:(定长类型，维度)
+t=numpy.dtype( (int,5))
+d = np.array([ (1,2,3,4,5),(6,7,8,9,10) ],dtype=(int,5)) #规定每个元素为int类型，每个元素包括5个元素
+
+d2= np.array([ ( (1,2,3),(3,4,5) ),((7,8,11),(9,10,12)) ] ,dtype=((np.uint8,3),2)) #规定由3个uint8组成的序列，一共有2个序列
+
+t=numpy.dtype('U14,i4')
+f=np.array([ ('abc',123),('def',456) ],dtype='U14,i4')
+
+4: T:[(名称，类型，维度),(字段秒速)....]
+t=numpy.dtype([('name',np.str_,14),('age',np.int32)])
+t=np.array([ ('sam',30),('wendy',28)],dtype=[('name',np.str_,14),('age',np.int32)] )
+t[0]['name'] #获取第0个元素name属性值
+
+
+********numpy的类型字符码*************
+布尔:?
+有符号字节:b
+无符号字节:B
+整形:i  #默认为i8 = int8, i2=int16, i4=int32
+无符号整形: u/u2/u4/u8 #u=unicode 8,u2= unicode 16
+浮点：f2/f4/f8 = float16/float32/float64
+复数:c8 /c16
+时间增量:m
+时刻:M (具有年月日)
+Python 对象：O
+字节序列形式的字符串: S(string)或者a (assic)
+Unicode字符串:U
+空类型: v -- 表示泛型类型
+字节序: '>'--大端序(高位低值) ,'<' --小端序(底位高值), '=' --自动匹配硬件字节序
+
+
+*******切片**************
+b = np.arange(1,25).reshape(2,3,4)
+print(b[:,0,0]) #
+print(b[0,:,:]) 等价于 print(b[0,...])
+
+print(b[...,1]) #[2,6,10],[14,18,22]
+
+print(b[0,1,::2]) # [5,7]
+
+print(b[-1,1:,2:] #[19,20],[23,24]
+
+**********改变维度*************
+1.视图变维
+a = np.arange(1,7)
+b=a.reshape(2,3)  #a 和b实现数据共享
+c=b.ravel() #扁平化数组，直接变成一维
+
+b[0][0]+=10 #将b的第00个元素加10，结果为11,则print(a[0])也是11
+
+2.复制变维
+e=b.flatten() #[1,2,3,4,5,6]
+e[0]+10 结果:[11,2,3,4,5,6],b结果不变
+
+3.就地变维
+a.shape=(2,3) #将a变为(2,3)数组 等价于 a.resize((2,3)),resize为方法，shape为属性
+print(c) #任然为一维
+
+4.视图转置
+
+f = a.transpose() #数列转置
+一维数组不能转置，转置必须是二维以上的数组
+将一维数组直接变为2维,再进行转置: np.array([a]).transpose 或者 a.reshap(-1,1),-1表示任意，1表示1列
+a.reshap(-1,2)表示将a转换成2列的数组， a.reshap(2,-1):表示将a转换成2行的数组
+
+
+***********数组组合*************
+1.垂直组合
+v = numpy.vstack((u,d)) #要求u,d数组具有相同数量的列
+[u] #(2,3)
+[d] #(1,3)
+
+2.水平组合
+h = numpy.hstack((l,r)) #l:left, r:right
+[l][r]  # l (2,3), r (2,1) 具有相同的行
+
+3.dstack #深度组合
+np.dstack((u,d))
+
+4.行组合
+r = np.row_stack((u,d))
+u=[1,2,3], d=[4,5,6]
+r=[ [1,2,3],[4,5,6]]
+
+5.列组合
+c = np.column_stack((l,r))
+l=[1,2,3]
+r=[4,5,6]
+c:[ [1,4]
+    [2,5]
+    [3,6]
+]
+
+
+***********数组分割*************
+1.垂直分割  Split an array into multiple sub-arrays vertically (row-wise)
+u,d= np.vsplit(v,[row-wise])
+u=np.arange(1,7).reshape(2,3)
+d=np.array([8,9,10])
+v = np.vstack((u,d)) #垂直组合 (3,3)的数组
+np.vsplit(v,3) #分解成3行 [1,2,3],[4,5,6],[8,9,10]
+
+2.水平分割  Split an array into multiple sub-arrays horizontally (column-wise).
+np.hsplit(v,[column-wise])
+
+3.深度分割 Split array into multiple sub-arrays along the 3rd axis (depth)
+np.dsplit(v,2)
+
+
+
+********numpy.ndarray 类的更多属性*********
+dtype :表示数组的类型 
+	a 为complex 数组,a.dtype.type e.g. numpy.complex128  a.dtype.str e.g <c16
+	a.dtype.char e.g. D
+	a.dtype.itemsize 等价于 a.itemsize
+
+shape: 维度
+ndim: 维数
+size:元素个数  对于e --(2,3)数组，size = 6, len(e) = 2 ,如果三维数组，则len(a)为页数长度
+
+itemsize : 每个元素的字节数
+	a.itemsize e.g. 16 (实步和虚部的字节长度)
+
+nbytes : 数组的总字节数
+T : 转置视图  a.T
+real :复数数组的实步视图
+imag:复数数组的虚部视图
+
+flat:扁平迭代器 (flatten()方法，将数组变为一维)
+	for i in a.flat: print(i) #得到数组的每一个元素,顺序迭代
+	a.flat[2] #得到第三个元素
+	a.flat[0] = 10 #修改第0个元素
+	a.flat[[1,3,5]]#获取第1,3,5个元素
+	a.flat[::2] #通过切片获取步长2的元素
+
+tolist :转换为Python列表
+	a.tolist() #转换成list对象
+
+astype: 将数组转换类型，不会改变原来类型
+	c = a.astype(np.str_)
+
+
+
+********numpy通用函数**************
+1.读取csv文件
+loadtxt(文件名路径，分隔符，usecols=(列索引表)，unpack=True,dtype=元素类型,
+	converters={列索引号:转换函数})
+converters:转换器
+np.loadtxt(fileName,delimiter=',',usecols=(1,3,4,5,6,7),  #usecols=(0,1,2,3,4,5),  usecols=(1,3,4,5,6,7)
+                   unpack=True,dtype=np.dtype('M8[D],f8,f8,f8,f8,f8'),#M8[D]以日为单位，取八个字节
+                   converters={1:dmy2ymd})
+
+平均值表现总体趋势，标准差表现分散趋势
+
+2.算数平均值
+样本S=[s1,s2....sn]
+算数平均值:m = (s1+s2+...+sn)/n
+np.mean(s)
+
+3.加权平均值
+样本S=[s1,s2....sn]
+权重: w =[w1,w2...wn]
+归一化:N = [n1,n2...nn], ni = wi/(w1+w2+....wn)
+
+加权平均， a= (s1*w1+s2*w2+...sn*wn)/(w1+w2+...+wn)
+或者 a = s1*n1+s2*n2+...+sn*nn
+
+a = numpy.average(closing_prices,weight=[...]) #加权平均numpy算法
+
+成交量加权平均价格(VWAP-- Volume Weighted Average Prices)
+时间价钱加权平均价格(TWAP, Time Weighted Average prices)
+
+4.最大值和最小值
+numpy.max(数组)#返回数组中的最大值
+numpy.min(数组) #返回数组中的最小值 
+
+numpy.maximum(数组1，数组2...)#求多个数组中对应元素的最大值
+numpy.minimun(数组1，数组2...)
+
+a = [[9,7,5],[3,1,8],[6,6,1]]
+b=[[9,7,9],[2,1,4],[6,3,5] ] 
+numpy.max(a) # 9 output
+numpy.maximum(a,b) # [[9,7,9],[3,1,8],[6,6,5]]
+
+numpy.random.randint(10,100,27) #[10,100) 取27个数
+
+练习:计算股票价格的波动范围：在一定时期内最高的最高价 - 最低的最低价
+
+5.中位数:将多个样本按大小顺序排列，居于中间位置的元素就是中位数。
+可以反应出相对公平的数值。
+例如: 1,3,5,7,9的中位数是 5
+1,2,3,4,5,6 的中位数是3,4的算术平均数 3.5
+a = np.sort(a )   在求 : (a[(size-1)/2)]+a[size/2] )/2
+
+numpy.median(a) #求出中位数
+
+
+6.几个统计指标
+样本:[s1,s2,...sn]
+均值: m = (s1+s2+...+sn)/n  反应样本的平均状态   np.mean
+离差:[d1,d2,...,dn], di = si-m #反应样本值离均值的距离
+离差方:[q1,a2...,qn], qi = di*di (di*2), 只关心大小，不关心方向，
+	使用平方而是不是绝对值是 注重原函数的连续性，可导
+总体方差: p = (q1+q2+...qn)/n 衡量均值的偏移情况
+总体标准差: std = sqrt(p) #对p开根，或者叫方均根,衡量随机样本的随机性/分散性
+
+----------------------
+样本方差: p = (q1+q2+...qn)/n-1
+样本标准差：std = sqrt(p)
+
+无偏估计量
+
+numpy.var(数组) #计算数组的方差，默认为总体方差
+numpy,std(数组) #计算总体标准差
+
+练习:
+1.股价的简单收益率:
+closing_prices = [c1,c2,c3,...cn] 表示n天每天的收盘价
+diff: [d1,d2,...dn-1] 差价，d1=c2-c1,d2=c3-c1
+
+收益率: [r1,r2,r3...rn-1], ri = di/ci 表示第i天的收益率，即百分比
+标准差 np.std(收益率) 评估收益是否平稳/稳定，如果在均值附近做小幅度波动，表示平稳，即标准差约小
+
+T:时间周期，例如 5天
+
+2.对数收益率:
+closing_prices = [c1,c2,c3,...cn] 表示n天每天的收盘价
+log: [l1,l2,l3,..ln] 对每个收益价求对数
+对数收益率: [t1,t2,...tn-1] #t1=l2-l1
+
+
+股票波动率:
+std(T)/menu(T)/(sqrt(1/trading_days) ): 将波动率平均到每一天
+menu(T) :平均值
+stockVolatility.py
+
+7.移动平均值和数组卷积
+
+
+卷积运算: numpy.convolve(closing_prices,卷积核,'valid') #valid / full
+代码:conv.py
+
+
+*********波动率************
+例子见: stockVolatility.py (量化分析)
+
+np.take(close_prices, np.where(weeks==0))
+
+max_index = np.argmax(average_prices) #获取average_prices中值最大的下标号
+min_index = np.argmin(average_prices)
+
+for index, value in enumerate(average_week_prices):
+    week_prices = weeksday[index]
+    print(weeksday[index] , ": " ,value,"(max)" if(index==max_index) else '(min)' if(index==min_index) else '')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

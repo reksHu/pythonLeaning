@@ -1,0 +1,91 @@
+﻿def getContents(url):
+    res=requests.get(url)
+    res.encoding='utf-8'
+    soup=BeautifulSoup(res.text,'html.parser')
+    contents=soup.select('.post_item')
+    result={}
+    title=contents[0].findAll('a',attrs={'class':'titlelnk'})[0].text
+    suggestNum=contents[0].findAll('span',attrs={'class':'diggnum'})[0].text
+    postSumm=contents[0].findAll('p',attrs={'class':'post_item_summary'})[0].text.strip()
+    autho=contents[0].findAll('div',attrs={'class':'post_item_foot'})[0].text.strip()
+    result['title']=title
+    result['suggest Num']=suggestNum
+    result['post Summ']=postSumm
+    result['autho']=autho
+    #for content in contents:
+        #title=content.findAll('a',attrs={'class':'titlelnk'})[0].text
+        #suggestNum=content.findAll('span',attrs={'class':'diggnum'}[0].text
+        #print(suggestNum)
+        #postSumm=content.findAll('p',attrs={'class':'post_item_summary'})
+        #autho=content.findAll('div',attrs={'class':'post_item_foot'})[0].text.strip()
+        #result['title']=title
+        #result['suggest Num']=suggestNum
+        #result['post Summ']=postSumm
+        #result['autho']=autho     
+    return result  
+
+import pandas
+result=getContents('https://www.cnblogs.com/')
+print(result)
+#ds=pandas.DataFrame(result)
+
+
+
+
+import requests
+from bs4 import BeautifulSoup
+import codecs
+from lxml import etree
+import csv 
+res= requests.get('https://www.cnblogs.com/')
+res.encoding='utf-8'
+#item_list=res.text.xpath("//div[@class='post_item']")
+#print(item_list)
+tree=etree.HTML(res.text)
+date=tree.xpath("//div[@class='post_item']/div[2]/p[1]/text()")
+with open('rex.csv','w') as csvConn:
+    for c in date:
+        if c.strip() != '':
+            writer=csv.writer(csvConn)
+            writer.writerows(c.strip())
+#print(date)
+for c in date:
+    if c.strip() != '':
+        print(c.strip())
+#print(date[0].strip())
+
+
+//div[@class='pager']/a[last()].
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import sqlite3
+import pandas as pd
+dbPath='E:\pythonProjects\lieChang\data\doubanDB.db'
+conn = sqlite3.connect(dbPath)
+
+#c = conn.cursor()
+sql = 'select * from douban'
+#content  = c.execute(sql)
+result = pd.read_sql(sql,conn)
+#print(result['commentTime'])
+result['commentTime'] = pd.to_datetime(result['commentTime'])
+print(result['commentTime'].value_counts())
+
+conn.close()
+
+
+
+
+

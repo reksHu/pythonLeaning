@@ -1,0 +1,93 @@
+﻿
+mysql 安装
+配置虚拟机:
+配置固定IP地址
+systemctl stop firewalld
+setenforce 0
+
+mysql 下载地址 https://dev.mysql.com/downloads/mysql/
+如果机器中安装有/不确定是否安装有mariadb
+
+rpm -qa | grep -i mariadb
+yum list | grep -i mariadb
+
+rmp -q mariadb-server mariadb  # 查询 mariadb 依赖关系
+
+rmp -e --nodeps mariadb-server mariadb  #卸载
+
+
+安装mysql 
+sodu apt-cache search mysql-server
+
+sodu apt-get install mysql-server
+
+
+使用rpm安装
+rpm -Uvh mysql-community-*.rpm
+
+
+查看是否安装成功
+rpm -qa |grep -i mysql
+sudo netstat -tap | grep mysql #如果看到有mysql 的socket处于 listen 状态则表示安装成功
+
+启动mysql服务
+systemctl status mysqld  #查看服务状态
+systemctl start mysqld  #启动服务
+
+mysql 服务端口号：3306, 我自己的虚拟机安装后端口为5956
+
+netstat -untlap |grep ：3306  #查看端口
+
+which mysql  #/usr/bin/mysql , mysql称为了一个命令 
+rpm -qf /usr/bin/mysql #查看什么包提供了mysql命令
+
+连接mysql 服务
+
+grep password /var/log/mysqld.log #第一个安装密码存放地址
+
+mysql -hlocalhost -uroot -p"[init password]"  #如果密码中包含!,则用单引号执行密码
+
+
+查看所有databases
+use mysql
+show databases; (注意加分号)
+
+mysql 初始化文件路径:
+/var/lib/mysql
+
+ls /etc/my.cnf
+
+grep mysql /etc/passwd
+
+systemctl enable mysqld  #设置mysql服务开机自启动
+
+修改用户密码:
+alter user root@"localhost" identified by "[new password]"
+
+set global validate_password_policy
+set global validate_password_length=6#密码不能小于6个字符
+
+查看mysql my.cnf路径
+mysql --help |grep my.cnf
+
+
+mysql -V #查看mysql 版本
+mysql>select version();
+
+ps -ef |grep mysql  #查看进程
+
+
+
+select database(); #查看当前所在的数据库
+
+create database if not existed mydatabase;
+create table if not existed mytable(id int primary key,name varchar(20))
+
+db=pymysql.connect("localhost","root","abc123_",charset="urf8")
+cur = db.cursor()
+cur.execute("create database if not existed mydatabase;")
+
+
+
+
+
